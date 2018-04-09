@@ -1,64 +1,103 @@
-
-// trial version of round robin implementation
-//defined functions to be used and main function 
-
-using namespace std;
-void findWaitingTime(int processes[], int n,int bt[], int wt[], int quantum)
-{	int rem_bt[n];
-    for (int i = 0 ; i < n ; i++)
-        rem_bt[i] =  bt[i];
+#include<stdio.h> 
  
-    int t = 0; 
-
-    for (int i = 0; i < n ; i++)
-        tat[i] = bt[i] + wt[i];
-}
+#define N 10 
  
-// Function to calculate average time
-void findavgTime(int processes[], int n, int bt[],
-                                     int quantum)
-{
-    int wt[n], tat[n], total_wt = 0, total_tat = 0;
+typedef struct 
+{ 
+      int process_id, arrival_time, burst_time, priority;
+      int q, ready; 
+}process_structure; 
  
-    // Function to find waiting time of all processes
-    findWaitingTime(processes, n, bt, wt, quantum);
+int Queue(int t1) 
+{ 
+      if(t1 == 0 || t1 == 1 || t1 == 2 || t1 == 3) 
+      { 
+            return 1; 
+      } 
+      else
+      {
+            return 2; 
+      }
+} 
  
-    // Function to find turn around time for all processes
-    findTurnAroundTime(processes, n, bt, wt, tat);
- 
-    // Display processes along with all details
-    cout << "Processes "<< " Burst time "
-         << " Waiting time " << " Turn around time\n";
- 
-    // Calculate total waiting time and total turn
-    // around time
-    for (int i=0; i<n; i++)
-    {
-        total_wt = total_wt + wt[i];
-        total_tat = total_tat + tat[i];
-        cout << " " << i+1 << "\t\t" << bt[i] <<"\t "
-             << wt[i] <<"\t\t " << tat[i] <<endl;
-    }
- 
-    cout << "Average waiting time = "
-         << (float)total_wt / (float)n;
-    cout << "\nAverage turn around time = "
-         << (float)total_tat / (float)n;
-}
- 
-// main code
-int main()
-{
-    // process id's
-    int processes[] = { 1, 2, 3};
-    int n = sizeof processes / sizeof processes[0];
- 
-    // Burst time of all processes
-    int burst_time[] = {10, 5, 8};
- 
-    // Time quantum
-    int quantum = 2;
-    findavgTime(processes, n, burst_time, quantum);
-    return 0;
+int main() 
+{ 
+      int limit, count, temp_process, time, j, y; 
+      process_structure temp; 
+      printf("Enter Total Number of Processes:\t"); 
+      scanf("%d", &limit);  
+      process_structure process[limit]; 
+      for(count = 0; count < limit; count++) 
+      { 
+            printf("\nProcess ID:\t"); 
+            scanf("%d", &process[count].process_id); 
+            printf("Arrival Time:\t"); 
+            scanf("%d", &process[count].arrival_time); 
+            printf("Burst Time:\t"); 
+            scanf("%d", &process[count].burst_time); 
+            printf("Process Priority:\t"); 
+            scanf("%d", &process[count].priority); 
+            temp_process = process[count].priority; 
+            process[count].q = Queue(temp_process);
+            process[count].ready = 0; 
+      }
+      time = process[0].burst_time; 
+      for(y = 0; y < limit; y++) 
+      { 
+            for(count = y; count < limit; count++) 
+            { 
+                  if(process[count].arrival_time < time) 
+                  {
+                        process[count].ready = 1; 
+                  } 
+            } 
+            for(count = y; count < limit - 1; count++) 
+            {
+                  for(j = count + 1; j < limit; j++) 
+                  { 
+                        if(process[count].ready == 1 && process[j].ready == 1) 
+                        { 
+                              if(process[count].q == 2 && process[j].q == 1) 
+                              { 
+                                    temp = process[count]; 
+                                    process[count] = process[j]; 
+                                    process[j] = temp; 
+                              } 
+                        } 
+                  } 
+            } 
+            for(count = y; count < limit - 1; count++) 
+            { 
+                  for(j = count + 1; j < limit; j++) 
+                  {
+                        if(process[count].ready == 1 && process[j].ready == 1) 
+                        { 
+                              if(process[count].q == 1 && process[j].q == 1) 
+                              { 
+                                    if(process[count].burst_time > process[j].burst_time) 
+                                    { 
+                                          temp = process[count]; 
+                                          process[count] = process[j]; 
+                                          process[j] = temp; 
+                                    } 
+                                    else 
+                                    { 
+                                          break; 
+                                    } 
+                              } 
+                        } 
+                  } 
+            } 
+            printf("\nProcess[%d]:\tTime:\t%d To %d\n", process[y].process_id, time, time + process[y].burst_time); 
+            time = time + process[y].burst_time; 
+            for(count = y; count < limit; count++) 
+            { 
+                  if(process[count].ready == 1) 
+                  { 
+                        process[count].ready = 0; 
+                  } 
+            } 
+      } 
+      return 0; 
 }
 
